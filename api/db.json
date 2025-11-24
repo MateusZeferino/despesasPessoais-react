@@ -1,0 +1,28 @@
+{
+  "gastos": [
+    {
+      "id": "4b3d",
+      "descricao": "DisneyPlus",
+      "categoria": "Lazer",
+      "valor": 49.9,
+      "data": "2025-12-10",
+      "mes": "12"
+    },
+    {
+      "id": "dcd0",
+      "descricao": "GUGA ",
+      "categoria": "Lazer",
+      "valor": 50.45,
+      "data": "2025-11-23",
+      "mes": "11"
+    },
+    {
+      "id": "871a",
+      "descricao": "Ano novo",
+      "categoria": "Festa de Ano novo",
+      "valor": 250,
+      "data": "2025-12-31",
+      "mes": "12"
+    }
+  ]
+}

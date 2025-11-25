@@ -1,25 +1,28 @@
 // Importa o React em si e alguns hooks/tipos específicos do React
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { Link } from "react-router-dom";
+import CarregandoModal from "./componentes/carregandoModal";
+
+
 
 // Define a interface (tipo) de um Gasto, espelhando a estrutura do db.json
 interface Gasto {
-  id: number;          // ID único do gasto, usado pelo json-server para identificar o registro
-  descricao: string;   // Descrição do gasto (ex: "Supermercado")
-  categoria: string;   // Categoria do gasto (ex: "Alimentação")
-  valor: number;       // Valor numérico do gasto (ex: 250.75)
-  data: string;        // Data do gasto em formato string (ex: "2025-11-05")
-  mes: string;         // Mês do gasto como string (ex: "11" ou "10")
+  id: number;          
+  descricao: string;   
+  categoria: string;   
+  valor: number;       
+  data: string;        
+  mes: string;         
 }
 
 // Define um tipo auxiliar para o formulário de "novo gasto"
 // Aqui não precisamos de id nem mes, porque o id é gerado pelo json-server
 // e o mes será calculado automaticamente a partir da data (ou do mês selecionado)
 type NovoGasto = {
-  descricao: string;   // Campo de formulário para a descrição do novo gasto
-  categoria: string;   // Campo de formulário para a categoria do novo gasto
-  valor: number;       // Campo de formulário para o valor do novo gasto
-  data: string;        // Campo de formulário para a data do novo gasto
+  descricao: string;   
+  categoria: string;   
+  valor: number;       
+  data: string;        
 };
 
 // Constante com a URL base da API do json-server
@@ -47,11 +50,13 @@ const MESES = [
 // Calcula, fora do componente, qual é o mês atual do dispositivo
 // new Date() pega a data atual do sistema
 const dataAtual = new Date();
+
 // getMonth() retorna 0-11, então somamos 1 para ficar 1-12
 const MES_ATUAL_PADRAO = String(dataAtual.getMonth() + 1);
 
 // Define o componente principal do app
 function App() {
+
   // Estado que armazena o mês atualmente selecionado na sidebar
   // Começa com o mês atual do dispositivo (MES_ATUAL_PADRAO)
   const [mesSelecionado, setMesSelecionado] = useState<string>(MES_ATUAL_PADRAO);
@@ -68,10 +73,10 @@ function App() {
   // Estado para o formulário de criação de um novo gasto
   // Inicia com campos vazios (e valor 0)
   const [novoGasto, setNovoGasto] = useState<NovoGasto>({
-    descricao: "",      // Começa sem descrição
-    categoria: "",      // Começa sem categoria
-    valor: 0,           // Começa com 0, o usuário vai digitar
-    data: "",           // Começa sem data
+    descricao: "",      
+    categoria: "",      
+    valor: 0,           
+    data: "",          
   });
 
   // Estado para armazenar o gasto que está em modo de edição (se houver)
@@ -82,18 +87,18 @@ function App() {
   // Isso garante que ao abrir a tela (mês atual) ou trocar de mês na sidebar,
   // o app sempre busque os gastos do mês em questão
   useEffect(() => {
-    // Chama a função que faz o GET na API para o mês selecionado
+  
     buscarGastosPorMes(mesSelecionado);
-    // mesSelecionado é a dependência: sempre que ele mudar, o efeito roda
+    
   }, [mesSelecionado]);
 
   // Função assíncrona que busca na API todos os gastos de um certo mês
   async function buscarGastosPorMes(mes: string) {
-    // Inicia um bloco try/catch para tratar erros de rede ou HTTP
+    
     try {
-      // Define que estamos "carregando", para mostrar feedback na tela
+      
       setCarregando(true);
-      // Limpa qualquer erro anterior antes de uma nova tentativa
+      
       setErro(null);
 
       // Faz a requisição GET na API, filtrando pelo mês (?mes=...)
@@ -110,24 +115,24 @@ function App() {
       // Atualiza o estado "gastos" com os dados retornados
       setGastos(dados);
     } catch (erroCapturado) {
-      // Se cairmos no catch, extraímos a mensagem do erro
+      
       const mensagem =
         erroCapturado instanceof Error
           ? erroCapturado.message
           : "Erro desconhecido ao buscar gastos";
-      // Guardamos a mensagem no estado para exibir ao usuário
+      
       setErro(mensagem);
     } finally {
-      // Independente de sucesso ou erro, saímos do modo "carregando"
+      
       setCarregando(false);
     }
   }
 
   // Handler para quando o usuário clicar em um mês na sidebar
   function handleSelecionarMes(mes: string) {
-    // Atualiza o mês selecionado
+    
     setMesSelecionado(mes);
-    // Se estávamos editando algum gasto, saímos do modo de edição ao trocar de mês
+   
     setGastoEditando(null);
   }
 
@@ -361,6 +366,7 @@ function App() {
         fontFamily: "sans-serif", // Define uma fonte simples e legível
       }}
     >
+      <CarregandoModal open={carregando} message="Carregando dados..." />
       {/* Sidebar com a lista de meses */}
       <aside
         style={{
@@ -473,17 +479,6 @@ function App() {
         )}
 
         {/* Indica visualmente quando estamos carregando dados da API */}
-        {carregando && (
-          <p
-            style={{
-              marginBottom: "16px", // Espaço abaixo do texto
-              fontStyle: "italic",  // Estilo itálico para diferenciar
-            }}
-          >
-            Carregando gastos...
-          </p>
-        )}
-
         {/* Se não estiver carregando e não houver gastos, mostra um recado */}
         {!carregando && gastos.length === 0 && (
           <p

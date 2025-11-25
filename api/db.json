@@ -9,18 +9,26 @@
       "mes": "12"
     },
     {
-      "id": "dcd0",
-      "descricao": "GUGA ",
-      "categoria": "Lazer",
-      "valor": 50.45,
-      "data": "2025-11-23",
-      "mes": "11"
-    },
-    {
       "id": "871a",
       "descricao": "Ano novo",
       "categoria": "Festa de Ano novo",
       "valor": 250,
+      "data": "2025-12-31",
+      "mes": "12"
+    },
+    {
+      "id": "bd22",
+      "descricao": "IPTV",
+      "categoria": "Lazer",
+      "valor": 35,
+      "data": "2025-11-25",
+      "mes": "11"
+    },
+    {
+      "id": "ca09",
+      "descricao": "Ano novo",
+      "categoria": "Lazer ",
+      "valor": 20000000,
       "data": "2025-12-31",
       "mes": "12"
     }

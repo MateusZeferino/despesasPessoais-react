@@ -13,16 +13,19 @@ const carregandoModal: React.FC<carregandoModalProps> = ({ open, message = "Carr
   return (
     <div
       style={{
-        position: "fixed",          // fixa na tela inteira
-        inset: 0,                   // top, right, bottom, left = 0
-        backgroundColor: "rgba(0,0,0,0.35)", // fundo escurecido
-        display: "flex",            // centraliza o conteúdo
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.35)",
+        display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 9999,               // fica por cima de tudo
+        zIndex: 9999,
       }}
     >
       <div
+        role="status"
+        aria-live="polite"
+        aria-label={message}
         style={{
           backgroundColor: "#ffffff",
           padding: "24px 32px",

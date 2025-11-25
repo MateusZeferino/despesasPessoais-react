@@ -17,20 +17,188 @@
       "mes": "12"
     },
     {
-      "id": "bd22",
-      "descricao": "IPTV",
-      "categoria": "Lazer",
-      "valor": 35,
-      "data": "2025-11-25",
-      "mes": "11"
-    },
-    {
       "id": "ca09",
       "descricao": "Ano novo",
       "categoria": "Lazer ",
       "valor": 20000000,
       "data": "2025-12-31",
       "mes": "12"
+    },
+    {
+      "id": "79c9",
+      "descricao": "Roupa",
+      "categoria": "Vestimenta",
+      "valor": 250,
+      "data": "2025-11-25",
+      "mes": "11"
+    },
+    {
+      "id": "9f5b",
+      "descricao": "Plano de saúde",
+      "categoria": "Saúde",
+      "valor": 320,
+      "data": "2025-08-05",
+      "mes": "8"
+    },
+    {
+      "id": "ba18",
+      "descricao": "Supermercado mensal",
+      "categoria": "Alimentação",
+      "valor": 720.5,
+      "data": "2025-09-12",
+      "mes": "9"
+    },
+    {
+      "id": "d4c0",
+      "descricao": "Academia",
+      "categoria": "Saúde",
+      "valor": 189.9,
+      "data": "2025-07-03",
+      "mes": "7"
+    },
+    {
+      "id": "f83e",
+      "descricao": "Passagens aéreas",
+      "categoria": "Viagem",
+      "valor": 1420,
+      "data": "2025-06-11",
+      "mes": "6"
+    },
+    {
+      "id": "a1bd",
+      "descricao": "Internet residencial",
+      "categoria": "Serviços",
+      "valor": 179.9,
+      "data": "2025-05-02",
+      "mes": "5"
+    },
+    {
+      "id": "1067",
+      "descricao": "Combustível",
+      "categoria": "Transporte",
+      "valor": 320,
+      "data": "2025-04-17",
+      "mes": "4"
+    },
+    {
+      "id": "1f32",
+      "descricao": "Vale-refeição",
+      "categoria": "Alimentação",
+      "valor": 210,
+      "data": "2024-12-05",
+      "mes": "12"
+    },
+    {
+      "id": "2c6a",
+      "descricao": "Oficina do carro",
+      "categoria": "Transporte",
+      "valor": 890,
+      "data": "2024-10-29",
+      "mes": "10"
+    },
+    {
+      "id": "3d6f",
+      "descricao": "Contrato de coworking",
+      "categoria": "Trabalho",
+      "valor": 540,
+      "data": "2024-09-10",
+      "mes": "9"
+    },
+    {
+      "id": "4e91",
+      "descricao": "Curso de UX",
+      "categoria": "Educação",
+      "valor": 680,
+      "data": "2024-05-22",
+      "mes": "5"
+    },
+    {
+      "id": "5b02",
+      "descricao": "Cinema com amigos",
+      "categoria": "Lazer",
+      "valor": 120,
+      "data": "2024-07-15",
+      "mes": "7"
+    },
+    {
+      "id": "60d4",
+      "descricao": "Seguro do carro",
+      "categoria": "Seguros",
+      "valor": 1320,
+      "data": "2023-11-28",
+      "mes": "11"
+    },
+    {
+      "id": "7b81",
+      "descricao": "Consultoria tributária",
+      "categoria": "Trabalho",
+      "valor": 920,
+      "data": "2023-02-18",
+      "mes": "2"
+    },
+    {
+      "id": "8c23",
+      "descricao": "Restaurante aniversário",
+      "categoria": "Lazer",
+      "valor": 380,
+      "data": "2023-03-19",
+      "mes": "3"
+    },
+    {
+      "id": "9d45",
+      "descricao": "Telefone celular",
+      "categoria": "Serviços",
+      "valor": 145.9,
+      "data": "2023-04-06",
+      "mes": "4"
+    },
+    {
+      "id": "af76",
+      "descricao": "Presentes de natal",
+      "categoria": "Lazer",
+      "valor": 620,
+      "data": "2022-12-18",
+      "mes": "12"
+    },
+    {
+      "id": "be88",
+      "descricao": "Passagem para congresso",
+      "categoria": "Educação",
+      "valor": 1340,
+      "data": "2022-05-10",
+      "mes": "5"
+    },
+    {
+      "id": "cf51",
+      "descricao": "Plano odontológico",
+      "categoria": "Saúde",
+      "valor": 95.5,
+      "data": "2022-01-15",
+      "mes": "1"
+    },
+    {
+      "id": "d102",
+      "descricao": "Academia",
+      "categoria": "Saúde",
+      "valor": 210,
+      "data": "2021-06-05",
+      "mes": "6"
+    },
+    {
+      "id": "e213",
+      "descricao": "Supermercado mensal",
+      "categoria": "Alimentação",
+      "valor": 690.2,
+      "data": "2021-07-20",
+      "mes": "7"
+    },
+    {
+      "id": "f624",
+      "descricao": "Freelance design",
+      "categoria": "Trabalho",
+      "valor": 2500,
+      "data": "2021-08-27",
+      "mes": "8"
     }
   ]
 }

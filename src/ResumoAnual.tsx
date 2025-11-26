@@ -36,6 +36,7 @@ const MESES = [
 const ResumoAnual: React.FC = () => {
   const { user, logout, isAdmin } = useAuth();
   const rendaMensal = user?.rendaMensal ?? 0;
+  const rendaAnual = rendaMensal * 12;
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [anosDisponiveis, setAnosDisponiveis] = useState<number[]>([]);
   const [anoSelecionado, setAnoSelecionado] = useState<number | null>(null);
@@ -122,6 +123,11 @@ const ResumoAnual: React.FC = () => {
   const totalAno = useMemo(
     () => totaisPorMes.reduce((soma, valorMes) => soma + valorMes, 0),
     [totaisPorMes]
+  );
+
+  const classeTotalAno = useMemo(
+    () => obterClasseStatusValor(totalAno, rendaAnual),
+    [totalAno, rendaAnual]
   );
 
   const gastosPorCategoriaPorMes = useMemo(() => {
@@ -361,7 +367,16 @@ const ResumoAnual: React.FC = () => {
 
               <section className="total-section" aria-live="polite">
                 <h2>Total de gastos no ano</h2>
-                <p>{formatarMoeda(totalAno)}</p>
+                {rendaAnual > 0 && (
+                  <p className="total-section__info">
+                    Renda anual considerada: {formatarMoeda(rendaAnual)}
+                  </p>
+                )}
+                <p
+                  className={`total-section__value valor-status ${classeTotalAno}`}
+                >
+                  {formatarMoeda(totalAno)}
+                </p>
               </section>
             </>
           )}

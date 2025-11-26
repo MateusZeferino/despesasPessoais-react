@@ -649,7 +649,6 @@
 .mes-card__value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-primary-strong);
   margin-left: 14px;
 }
 
@@ -670,11 +669,16 @@
   font-size: 1.1rem;
 }
 
-.total-section p {
+.total-section__value {
   margin: 0;
   font-size: 1.9rem;
   font-weight: 700;
-  color: var(--color-primary-strong);
+}
+
+.total-section__info {
+  margin: 0 0 6px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
 }
 
 .status-dot {

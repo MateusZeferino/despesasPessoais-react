@@ -2625,60 +2625,6 @@
       "userId": 1
     },
     {
-      "id": "1-2025-01-0",
-      "descricao": "Supermercado",
-      "categoria": "Alimentação",
-      "valor": 146,
-      "data": "2025-01-05",
-      "mes": "1",
-      "userId": 1
-    },
-    {
-      "id": "1-2025-01-1",
-      "descricao": "Aluguel/Condomínio",
-      "categoria": "Moradia",
-      "valor": 164,
-      "data": "2025-01-12",
-      "mes": "1",
-      "userId": 1
-    },
-    {
-      "id": "1-2025-01-2",
-      "descricao": "Combustível/Ônibus",
-      "categoria": "Transporte",
-      "valor": 182,
-      "data": "2025-01-20",
-      "mes": "1",
-      "userId": 1
-    },
-    {
-      "id": "1-2025-01-3",
-      "descricao": "Cinema/Streaming",
-      "categoria": "Lazer",
-      "valor": 200,
-      "data": "2025-01-09",
-      "mes": "1",
-      "userId": 1
-    },
-    {
-      "id": "1-2025-01-4",
-      "descricao": "Cursos/Material",
-      "categoria": "Educação",
-      "valor": 218,
-      "data": "2025-01-16",
-      "mes": "1",
-      "userId": 1
-    },
-    {
-      "id": "1-2025-01-5",
-      "descricao": "Plano de saúde/Farmácia",
-      "categoria": "Saúde",
-      "valor": 236,
-      "data": "2025-01-24",
-      "mes": "1",
-      "userId": 1
-    },
-    {
       "id": "1-2025-02-0",
       "descricao": "Supermercado",
       "categoria": "Alimentação",
@@ -9753,10 +9699,10 @@
       "userId": 3
     },
     {
-      "id": "eeaa",
-      "descricao": "Natal",
-      "categoria": "Feriado",
-      "valor": 1900,
+      "id": "1d2f",
+      "descricao": "Lazer",
+      "categoria": "Saída com a namorada",
+      "valor": 190,
       "data": "2025-12-25",
       "mes": "12",
       "userId": 1

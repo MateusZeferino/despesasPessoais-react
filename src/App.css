@@ -553,6 +553,61 @@
   margin: 0 8px;
 }
 
+.monthly-total {
+  margin: 20px 0;
+  padding: 16px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.monthly-total__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.monthly-total__info small {
+  color: var(--color-muted);
+}
+
+.monthly-total__value {
+  font-size: 1.9rem;
+}
+
+.valor-status {
+  font-weight: 700;
+}
+
+.valor-status--default,
+.valor-status--ok {
+  color: var(--color-primary-strong);
+}
+
+.valor-status--zerado {
+  color: var(--color-muted);
+}
+
+.valor-status--alerta {
+  color: #d97706;
+}
+
+.valor-status--critico {
+  color: var(--color-danger);
+}
+
+.admin-income-value {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+
 .mes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

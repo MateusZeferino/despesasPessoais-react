@@ -4,21 +4,24 @@
       "id": "1",
       "nome": "Mateus Zeferino",
       "email": "mateus@example.com",
-      "role": "user"
+      "role": "user",
+      "renda-mensal": 2000
     },
     {
       "id": "2",
       "nome": "Ana Souza",
       "email": "ana@example.com",
       "password": "senha123",
-      "role": "user"
+      "role": "user",
+      "renda-mensal": 100000
     },
     {
       "id": "3",
       "nome": "Matheus Cataeno",
       "email": "cataeno@example.com",
       "password": "123457",
-      "role": "user"
+      "role": "user",
+      "renda-mensal": 5000
     },
     {
       "id": "99",
@@ -9748,6 +9751,15 @@
       "data": "2025-12-24",
       "mes": "12",
       "userId": 3
+    },
+    {
+      "id": "eeaa",
+      "descricao": "Natal",
+      "categoria": "Feriado",
+      "valor": 1900,
+      "data": "2025-12-25",
+      "mes": "12",
+      "userId": 1
     }
   ]
 }

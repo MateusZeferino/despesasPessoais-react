@@ -20,6 +20,7 @@ export interface AuthUser {
   nome: string;
   email: string;
   role: "admin" | "user";
+  rendaMensal: number;
 }
 
 interface LoginInput {
@@ -31,6 +32,7 @@ interface RegisterInput {
   nome: string;
   email: string;
   password: string;
+  rendaMensal: number;
 }
 
 interface AuthContextValue {
@@ -47,6 +49,25 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 const ADMIN_LOGIN = "admin";
 const ADMIN_PASSWORD = "1234";
+
+const normalizeMonthlyIncome = (valor: unknown): number => {
+  const numero = Number(valor ?? 0);
+  if (!Number.isFinite(numero) || numero <= 0) {
+    return 0;
+  }
+  return numero;
+};
+
+const mapApiUserToAuthUser = (dados: Record<string, unknown>): AuthUser => ({
+  id: typeof dados.id === "number" ? dados.id : Number(dados.id ?? 0),
+  nome: typeof dados.nome === "string" ? dados.nome : "",
+  email: typeof dados.email === "string" ? dados.email : "",
+  role:
+    dados.role === "admin" || dados.role === "user" ? dados.role : "user",
+  rendaMensal: normalizeMonthlyIncome(
+    dados["rendaMensal"] ?? dados["renda-mensal"]
+  ),
+});
 
 const generateFakeToken = (): string => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -85,9 +106,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const persistSession = useCallback(
     (sessionUser: AuthUser, sessionToken: string) => {
-      setUser(sessionUser);
+      const usuarioNormalizado: AuthUser = {
+        ...sessionUser,
+        role: sessionUser.role ?? "user",
+        rendaMensal: normalizeMonthlyIncome(sessionUser.rendaMensal),
+      };
+      setUser(usuarioNormalizado);
       setToken(sessionToken);
-      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(sessionUser));
+      localStorage.setItem(
+        STORAGE_USER_KEY,
+        JSON.stringify(usuarioNormalizado)
+      );
       localStorage.setItem(STORAGE_TOKEN_KEY, sessionToken);
       refreshSessionExpiration(sessionToken);
     },
@@ -120,6 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser({
           ...parsedUser,
           role: parsedUser.role ?? "user",
+          rendaMensal: normalizeMonthlyIncome(parsedUser.rendaMensal),
         });
         setToken(storedToken);
 
@@ -148,6 +178,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               nome: "Administrador",
               email: "admin@local",
               role: "admin",
+              rendaMensal: 0,
             },
             fakeToken
           );
@@ -168,20 +199,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           throw new Error("Usuário ou senha inválidos");
         }
 
-        const usuarioEncontrado = usuarios[0] as AuthUser;
+        const usuarioEncontrado = usuarios[0] as Record<string, unknown>;
         const fakeToken = generateFakeToken();
-        persistSession(
-          {
-            id:
-              typeof usuarioEncontrado.id === "number"
-                ? usuarioEncontrado.id
-                : Number(usuarioEncontrado.id),
-            nome: usuarioEncontrado.nome,
-            email: usuarioEncontrado.email,
-            role: usuarioEncontrado.role ?? "user",
-          },
-          fakeToken
-        );
+        persistSession(mapApiUserToAuthUser(usuarioEncontrado), fakeToken);
       } finally {
         setLoading(false);
       }
@@ -190,7 +210,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const register = useCallback(
-    async ({ nome, email, password }: RegisterInput) => {
+    async ({ nome, email, password, rendaMensal }: RegisterInput) => {
       setLoading(true);
       try {
         const resposta = await fetch(USERS_API_URL, {
@@ -198,7 +218,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ nome, email, password, role: "user" }),
+          body: JSON.stringify({
+            nome,
+            email,
+            password,
+            role: "user",
+            "renda-mensal": rendaMensal,
+          }),
         });
 
         if (!resposta.ok) {
@@ -207,18 +233,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         const novoUsuario = await resposta.json();
         const fakeToken = generateFakeToken();
-        persistSession(
-          {
-            id:
-              typeof novoUsuario.id === "number"
-                ? novoUsuario.id
-                : Number(novoUsuario.id),
-            nome: novoUsuario.nome,
-            email: novoUsuario.email,
-            role: novoUsuario.role ?? "user",
-          },
-          fakeToken
-        );
+        persistSession(mapApiUserToAuthUser(novoUsuario), fakeToken);
       } finally {
         setLoading(false);
       }

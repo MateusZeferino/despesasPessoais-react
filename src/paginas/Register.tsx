@@ -10,6 +10,7 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [rendaMensal, setRendaMensal] = useState("");
   const [erro, setErro] = useState<string | null>(null);
 
   async function handleSubmit(evento: FormEvent<HTMLFormElement>) {
@@ -21,8 +22,14 @@ const Register = () => {
       return;
     }
 
+    const rendaNumero = Number(rendaMensal);
+    if (Number.isNaN(rendaNumero) || rendaNumero < 0) {
+      setErro("Informe uma renda mensal valida");
+      return;
+    }
+
     try {
-      await register({ nome, email, password });
+      await register({ nome, email, password, rendaMensal: rendaNumero });
       navigate("/", { replace: true });
     } catch (erroCapturado) {
       const mensagem =
@@ -69,6 +76,20 @@ const Register = () => {
               onChange={(evento) => setEmail(evento.target.value)}
               required
               placeholder="seu@email.com"
+            />
+          </label>
+
+          <label className="input-label">
+            Renda mensal
+            <input
+              className="input-field"
+              type="number"
+              min="0"
+              step="0.01"
+              value={rendaMensal}
+              onChange={(evento) => setRendaMensal(evento.target.value)}
+              required
+              placeholder="Ex.: 2000"
             />
           </label>
 

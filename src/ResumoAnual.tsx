@@ -4,6 +4,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import "./App.css";
 import { useAuth } from "./auth/useAuth";
+import { formatarMoeda, obterClasseStatusValor } from "./utils/finance";
 
 interface Gasto {
   id: string;
@@ -34,6 +35,7 @@ const MESES = [
 
 const ResumoAnual: React.FC = () => {
   const { user, logout, isAdmin } = useAuth();
+  const rendaMensal = user?.rendaMensal ?? 0;
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [anosDisponiveis, setAnosDisponiveis] = useState<number[]>([]);
   const [anoSelecionado, setAnoSelecionado] = useState<number | null>(null);
@@ -122,9 +124,6 @@ const ResumoAnual: React.FC = () => {
     [totaisPorMes]
   );
 
-  const formatarValor = (valor: number): string =>
-    `R$ ${valor.toFixed(2).replace(".", ",")}`;
-
   const gastosPorCategoriaPorMes = useMemo(() => {
     const base: Array<Map<string, number>> = MESES.map(
       () => new Map<string, number>()
@@ -183,10 +182,10 @@ const ResumoAnual: React.FC = () => {
         const categorias = gastosPorCategoriaPorMes[index];
         const linhas =
           categorias.size === 0
-            ? [["Sem gastos", formatarValor(0)]]
+            ? [["Sem gastos", formatarMoeda(0)]]
             : Array.from(categorias.entries()).map(([categoria, total]) => [
                 categoria,
-                formatarValor(total),
+                formatarMoeda(total),
               ]);
 
         autoTable(doc, {
@@ -220,7 +219,7 @@ const ResumoAnual: React.FC = () => {
 
       doc.setFontSize(12);
       doc.text(
-        `Total gasto no ano: ${formatarValor(totalAno)}`,
+        `Total gasto no ano: ${formatarMoeda(totalAno)}`,
         40,
         currentY
       );
@@ -347,8 +346,13 @@ const ResumoAnual: React.FC = () => {
                 {MESES.map((mes, index) => (
                   <div key={mes.numero} className="mes-card">
                     <h3>{mes.rotuloLongo}</h3>
-                    <div className="mes-card__value">
-                      {formatarValor(totaisPorMes[index])}
+                    <div
+                      className={`mes-card__value valor-status ${obterClasseStatusValor(
+                        totaisPorMes[index],
+                        rendaMensal
+                      )}`}
+                    >
+                      {formatarMoeda(totaisPorMes[index])}
                     </div>
                     <div className="mes-card__abbrev">{mes.rotuloCurto}</div>
                   </div>
@@ -357,7 +361,7 @@ const ResumoAnual: React.FC = () => {
 
               <section className="total-section" aria-live="polite">
                 <h2>Total de gastos no ano</h2>
-                <p>{formatarValor(totalAno)}</p>
+                <p>{formatarMoeda(totalAno)}</p>
               </section>
             </>
           )}

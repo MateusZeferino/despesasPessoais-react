@@ -7,11 +7,35 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import { formatarMoeda } from "../utils/finance";
 import "../App.css";
 
 const USERS_API_URL = "http://localhost:3001/users";
 const GASTOS_API_URL = "http://localhost:3001/gastos";
 const ITENS_POR_PAGINA = 5;
+
+const normalizarRendaMensal = (valor: unknown): number => {
+  const numero = Number(valor ?? 0);
+  if (!Number.isFinite(numero) || numero <= 0) {
+    return 0;
+  }
+  return numero;
+};
+
+const mapearUsuarioApi = (dados: Record<string, unknown>): Usuario => ({
+  id: typeof dados.id === "number" ? dados.id : Number(dados.id ?? 0),
+  nome: typeof dados.nome === "string" ? dados.nome : "",
+  email: typeof dados.email === "string" ? dados.email : "",
+  password:
+    typeof dados.password === "string" && dados.password.length > 0
+      ? dados.password
+      : undefined,
+  role:
+    dados.role === "admin" || dados.role === "user" ? dados.role : "user",
+  rendaMensal: normalizarRendaMensal(
+    dados["rendaMensal"] ?? dados["renda-mensal"]
+  ),
+});
 
 interface Usuario {
   id: number;
@@ -19,6 +43,7 @@ interface Usuario {
   email: string;
   password?: string;
   role: "admin" | "user";
+  rendaMensal: number;
 }
 
 interface AdminGasto {
@@ -43,6 +68,7 @@ const AdminDashboard = () => {
     email: "",
     password: "",
     role: "user",
+    rendaMensal: 0,
   });
   const [usuarioEditando, setUsuarioEditando] = useState<Usuario | null>(null);
 
@@ -109,15 +135,14 @@ const AdminDashboard = () => {
         throw new Error("Erro ao buscar dados administrativos");
       }
 
-      const usuariosDados = (await usuariosResp.json()) as Usuario[];
+      const usuariosDados = (await usuariosResp.json()) as Record<
+        string,
+        unknown
+      >[];
       const gastosDados = (await gastosResp.json()) as AdminGasto[];
 
       setUsuarios(
-        usuariosDados.map((dados) => ({
-          ...dados,
-          id: typeof dados.id === "number" ? dados.id : Number(dados.id),
-          role: dados.role ?? "user",
-        }))
+        usuariosDados.map((dados) => mapearUsuarioApi(dados))
       );
 
       setGastos(
@@ -144,7 +169,12 @@ const AdminDashboard = () => {
     const { name, value } = evento.target;
     setNovoUsuario((anterior) => ({
       ...anterior,
-      [name]: value,
+      [name]:
+        name === "role"
+          ? value
+          : name === "rendaMensal"
+            ? Number(value) || 0
+            : value,
     }));
   }
 
@@ -158,7 +188,13 @@ const AdminDashboard = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(novoUsuario),
+        body: JSON.stringify({
+          nome: novoUsuario.nome,
+          email: novoUsuario.email,
+          password: novoUsuario.password,
+          role: novoUsuario.role,
+          "renda-mensal": novoUsuario.rendaMensal,
+        }),
       });
 
       if (!resposta.ok) {
@@ -166,19 +202,13 @@ const AdminDashboard = () => {
       }
 
       const criado = await resposta.json();
-      setUsuarios((lista) => [
-        ...lista,
-        {
-          ...criado,
-          id: typeof criado.id === "number" ? criado.id : Number(criado.id),
-          role: criado.role ?? "user",
-        },
-      ]);
+      setUsuarios((lista) => [...lista, mapearUsuarioApi(criado)]);
       setNovoUsuario({
         nome: "",
         email: "",
         password: "",
         role: "user",
+        rendaMensal: 0,
       });
     } catch (erroCapturado) {
       const mensagem =
@@ -200,7 +230,12 @@ const AdminDashboard = () => {
     const { name, value } = evento.target;
     setUsuarioEditando({
       ...usuarioEditando,
-      [name]: name === "role" ? (value as "admin" | "user") : value,
+      [name]:
+        name === "role"
+          ? (value as "admin" | "user")
+          : name === "rendaMensal"
+            ? Number(value) || 0
+            : value,
     });
   }
 
@@ -209,9 +244,14 @@ const AdminDashboard = () => {
     setErro(null);
 
     try {
-      const payload: Record<string, unknown> = { ...usuarioEditando };
-      if (!usuarioEditando.password) {
-        delete payload.password;
+      const payload: Record<string, unknown> = {
+        nome: usuarioEditando.nome,
+        email: usuarioEditando.email,
+        role: usuarioEditando.role,
+        "renda-mensal": usuarioEditando.rendaMensal,
+      };
+      if (usuarioEditando.password) {
+        payload.password = usuarioEditando.password;
       }
 
       const resposta = await fetch(`${USERS_API_URL}/${usuarioEditando.id}`, {
@@ -228,14 +268,7 @@ const AdminDashboard = () => {
       setUsuarios((lista) =>
         lista.map((usuario) =>
           usuario.id === usuarioEditando.id
-            ? {
-                ...atualizado,
-                id:
-                  typeof atualizado.id === "number"
-                    ? atualizado.id
-                    : Number(atualizado.id),
-                role: atualizado.role ?? "user",
-              }
+            ? mapearUsuarioApi(atualizado)
             : usuario
         )
       );
@@ -506,6 +539,19 @@ const AdminDashboard = () => {
                 onChange={handleChangeNovoUsuario}
                 required
               />
+              <input
+                className="input-field"
+                type="number"
+                name="rendaMensal"
+                placeholder="Renda mensal"
+                min="0"
+                step="0.01"
+                value={
+                  novoUsuario.rendaMensal === 0 ? "" : novoUsuario.rendaMensal
+                }
+                onChange={handleChangeNovoUsuario}
+                required
+              />
               <select
                 className="input-field"
                 name="role"
@@ -549,6 +595,16 @@ const AdminDashboard = () => {
                           onChange={handleChangeUsuarioEditando}
                           placeholder="Senha (opcional)"
                         />
+                        <input
+                          className="input-field"
+                          type="number"
+                          name="rendaMensal"
+                          min="0"
+                          step="0.01"
+                          value={usuarioEditando?.rendaMensal ?? 0}
+                          onChange={handleChangeUsuarioEditando}
+                          placeholder="Renda mensal"
+                        />
                         <select
                           className="input-field"
                           name="role"
@@ -563,6 +619,10 @@ const AdminDashboard = () => {
                       <div className="admin-item__info">
                         <div>
                           <strong>{usuario.nome}</strong> ({usuario.email})
+                          <div className="admin-income-value">
+                            Renda mensal:{" "}
+                            <strong>{formatarMoeda(usuario.rendaMensal)}</strong>
+                          </div>
                         </div>
                         <span className="badge">
                           {usuario.role === "admin" ? "Admin" : "Usuário"}

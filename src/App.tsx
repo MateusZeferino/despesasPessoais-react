@@ -8,6 +8,7 @@ import {
 import { Link } from "react-router-dom";
 import CarregandoModal from "./componentes/carregandoModal";
 import { useAuth } from "./auth/useAuth";
+import { formatarMoeda, obterClasseStatusValor } from "./utils/finance";
 import "./App.css";
 
 interface Gasto {
@@ -56,6 +57,7 @@ const getAnoDeGasto = (gasto: Gasto): number => {
 
 function App() {
   const { user, logout, isAdmin } = useAuth();
+  const rendaMensal = user?.rendaMensal ?? 0;
   const [mesSelecionado, setMesSelecionado] = useState<string>(
     MES_ATUAL_PADRAO
   );
@@ -135,6 +137,11 @@ function App() {
     });
   }, [mesSelecionado, todosGastos, anoSelecionado]);
 
+  const totalGastosMes = useMemo(
+    () => gastosFiltrados.reduce((soma, gasto) => soma + gasto.valor, 0),
+    [gastosFiltrados]
+  );
+
   useEffect(() => {
     setPaginaAtual(1);
   }, [mesSelecionado, anoSelecionado]);
@@ -159,6 +166,11 @@ function App() {
     const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
     return gastosFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
   }, [gastosFiltrados, paginaAtual]);
+
+  const classeValorTotalMes = useMemo(
+    () => obterClasseStatusValor(totalGastosMes, rendaMensal),
+    [totalGastosMes, rendaMensal]
+  );
 
   function handleSelecionarMes(mes: string) {
     setMesSelecionado(mes);
@@ -447,6 +459,20 @@ function App() {
               selecionado.
             </p>
           </header>
+
+          <div className="monthly-total">
+            <div className="monthly-total__info">
+              <span>Total do mes</span>
+              {rendaMensal > 0 && (
+                <small>Renda mensal: {formatarMoeda(rendaMensal)}</small>
+              )}
+            </div>
+            <strong
+              className={`monthly-total__value valor-status ${classeValorTotalMes}`}
+            >
+              {formatarMoeda(totalGastosMes)}
+            </strong>
+          </div>
 
           {erro && (
             <div className="alert" role="alert">

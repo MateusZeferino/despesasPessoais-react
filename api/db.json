@@ -4,7 +4,7 @@
       "id": "1",
       "nome": "Mateus Zeferino",
       "email": "mateus@example.com",
-      "role": "admin"
+      "role": "user"
     },
     {
       "id": "2",

@@ -11,6 +11,9 @@ import {
 const USERS_API_URL = "http://localhost:3001/users";
 const STORAGE_USER_KEY = "dp_user";
 const STORAGE_TOKEN_KEY = "dp_token";
+const STORAGE_TOKEN_EXPIRES_KEY = "dp_token_expires";
+const COOKIE_NAME = "dp_session_token";
+const COOKIE_MAX_AGE_SECONDS = 60;
 
 export interface AuthUser {
   id: number;
@@ -52,43 +55,86 @@ const generateFakeToken = (): string => {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 };
 
+const setTokenCookie = (value: string) => {
+  document.cookie = `${COOKIE_NAME}=${value}; max-age=${COOKIE_MAX_AGE_SECONDS}; path=/; SameSite=Lax`;
+};
+
+const clearTokenCookie = () => {
+  document.cookie = `${COOKIE_NAME}=; max-age=0; path=/; SameSite=Lax`;
+};
+
+const getTokenFromCookie = (): string | null => {
+  const fragment = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${COOKIE_NAME}=`));
+  if (!fragment) return null;
+  return fragment.substring(COOKIE_NAME.length + 1) || null;
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem(STORAGE_USER_KEY);
-    const storedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
-
-    if (storedUser && storedToken) {
-      try {
-        const parsedUser = JSON.parse(storedUser) as AuthUser;
-        setUser({
-          ...parsedUser,
-          role: parsedUser.role ?? "user",
-        });
-        setToken(storedToken);
-      } catch {
-        localStorage.removeItem(STORAGE_USER_KEY);
-        localStorage.removeItem(STORAGE_TOKEN_KEY);
-      }
-    }
+  const refreshSessionExpiration = useCallback((sessionToken: string) => {
+    const expiresAt = Date.now() + COOKIE_MAX_AGE_SECONDS * 1000;
+    localStorage.setItem(STORAGE_TOKEN_EXPIRES_KEY, String(expiresAt));
+    setTokenCookie(sessionToken);
   }, []);
 
-  const persistSession = useCallback((sessionUser: AuthUser, sessionToken: string) => {
-    setUser(sessionUser);
-    setToken(sessionToken);
-    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(sessionUser));
-    localStorage.setItem(STORAGE_TOKEN_KEY, sessionToken);
-  }, []);
+  const persistSession = useCallback(
+    (sessionUser: AuthUser, sessionToken: string) => {
+      setUser(sessionUser);
+      setToken(sessionToken);
+      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(sessionUser));
+      localStorage.setItem(STORAGE_TOKEN_KEY, sessionToken);
+      refreshSessionExpiration(sessionToken);
+    },
+    [refreshSessionExpiration]
+  );
 
   const clearSession = useCallback(() => {
     setUser(null);
     setToken(null);
     localStorage.removeItem(STORAGE_USER_KEY);
     localStorage.removeItem(STORAGE_TOKEN_KEY);
+    localStorage.removeItem(STORAGE_TOKEN_EXPIRES_KEY);
+    clearTokenCookie();
   }, []);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem(STORAGE_USER_KEY);
+    const storedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
+    const storedExpires = localStorage.getItem(STORAGE_TOKEN_EXPIRES_KEY);
+
+    if (storedUser && storedToken && storedExpires) {
+      try {
+        const expiresAt = Number(storedExpires);
+        if (Number.isNaN(expiresAt) || expiresAt < Date.now()) {
+          clearSession();
+          return;
+        }
+
+        const parsedUser = JSON.parse(storedUser) as AuthUser;
+        setUser({
+          ...parsedUser,
+          role: parsedUser.role ?? "user",
+        });
+        setToken(storedToken);
+
+        const cookieToken = getTokenFromCookie();
+        if (cookieToken !== storedToken) {
+          setTokenCookie(storedToken);
+        }
+        refreshSessionExpiration(storedToken);
+      } catch {
+        clearSession();
+      }
+    } else if (storedUser || storedToken || storedExpires) {
+      clearSession();
+    }
+  }, [clearSession, refreshSessionExpiration]);
 
   const login = useCallback(
     async ({ email, password }: LoginInput) => {
@@ -183,6 +229,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = useCallback(() => {
     clearSession();
   }, [clearSession]);
+
+  useEffect(() => {
+    if (!user || !token) return;
+
+    const renew = () => {
+      if (document.visibilityState === "visible") {
+        refreshSessionExpiration(token);
+      }
+    };
+
+    window.addEventListener("focus", renew);
+    document.addEventListener("visibilitychange", renew);
+
+    const intervalId = window.setInterval(() => {
+      refreshSessionExpiration(token);
+    }, Math.max(15, Math.floor(COOKIE_MAX_AGE_SECONDS / 2)) * 1000);
+
+    refreshSessionExpiration(token);
+
+    return () => {
+      window.removeEventListener("focus", renew);
+      document.removeEventListener("visibilitychange", renew);
+      window.clearInterval(intervalId);
+    };
+  }, [user, token, refreshSessionExpiration]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

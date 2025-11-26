@@ -527,6 +527,10 @@
 
 .cta-row {
   margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
 }
 
 .mes-grid {

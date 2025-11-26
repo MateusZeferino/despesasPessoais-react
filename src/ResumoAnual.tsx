@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import "./App.css";
 import { useAuth } from "./auth/useAuth";
 
@@ -122,6 +124,112 @@ const ResumoAnual: React.FC = () => {
 
   const formatarValor = (valor: number): string =>
     `R$ ${valor.toFixed(2).replace(".", ",")}`;
+
+  const gastosPorCategoriaPorMes = useMemo(() => {
+    const base: Array<Map<string, number>> = MESES.map(
+      () => new Map<string, number>()
+    );
+    if (anoSelecionado === null) {
+      return base;
+    }
+
+    gastos.forEach((gasto) => {
+      const data = new Date(gasto.data);
+      const ano = data.getFullYear();
+      if (ano !== anoSelecionado) return;
+
+      const numeroMes =
+        gasto.mes && !Number.isNaN(Number(gasto.mes))
+          ? Number(gasto.mes)
+          : data.getMonth() + 1;
+      const indexMes = numeroMes - 1;
+      if (indexMes < 0 || indexMes >= MESES.length) return;
+
+      const categorias = base[indexMes];
+      const acumulado = categorias.get(gasto.categoria) ?? 0;
+      categorias.set(gasto.categoria, acumulado + gasto.valor);
+    });
+
+    return base;
+  }, [gastos, anoSelecionado]);
+
+  const possuiDadosNoAno = useMemo(
+    () =>
+      anoSelecionado !== null &&
+      gastos.some(
+        (gasto) => new Date(gasto.data).getFullYear() === anoSelecionado
+      ),
+    [gastos, anoSelecionado]
+  );
+
+  function handleExportarRelatorio() {
+    if (!anoSelecionado || !user || !possuiDadosNoAno) return;
+
+    try {
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4",
+      });
+
+      doc.setFontSize(18);
+      doc.text(`Gastos Mensais para o ano ${anoSelecionado}`, 40, 50);
+      doc.setFontSize(12);
+      doc.text(`Usuário: ${user.nome}`, 40, 70);
+
+      let currentY = 90;
+
+      MESES.forEach((mes, index) => {
+        const categorias = gastosPorCategoriaPorMes[index];
+        const linhas =
+          categorias.size === 0
+            ? [["Sem gastos", formatarValor(0)]]
+            : Array.from(categorias.entries()).map(([categoria, total]) => [
+                categoria,
+                formatarValor(total),
+              ]);
+
+        autoTable(doc, {
+          startY: currentY,
+          head: [
+            [
+              {
+                content: mes.rotuloLongo,
+                colSpan: 2,
+                styles: { halign: "center" },
+              },
+            ],
+            ["Categoria", "Total"],
+          ],
+          body: linhas,
+          theme: "grid",
+          styles: { fontSize: 11 },
+          headStyles: {
+            fillColor: [227, 242, 253],
+            textColor: [29, 31, 37],
+          },
+          alternateRowStyles: {
+            fillColor: [248, 248, 248],
+          },
+          margin: { left: 40, right: 40 },
+        });
+
+        const lastY = (doc as any).lastAutoTable?.finalY ?? currentY;
+        currentY = lastY + 16;
+      });
+
+      doc.setFontSize(12);
+      doc.text(
+        `Total gasto no ano: ${formatarValor(totalAno)}`,
+        40,
+        currentY
+      );
+      doc.save(`Relatorio-Gastos-${anoSelecionado}.pdf`);
+    } catch (erroGeracao) {
+      console.error("Erro ao gerar PDF", erroGeracao);
+      setErro("Não foi possível gerar o relatório em PDF.");
+    }
+  }
 
   if (!user) {
     return null;
@@ -255,6 +363,14 @@ const ResumoAnual: React.FC = () => {
           )}
 
           <div className="cta-row">
+            <button
+              className="primary-btn"
+              type="button"
+              onClick={handleExportarRelatorio}
+              disabled={!possuiDadosNoAno}
+            >
+              Exportar relatório
+            </button>
             <Link to="/" className="cta-link">
               ← Voltar para gastos por mês
             </Link>

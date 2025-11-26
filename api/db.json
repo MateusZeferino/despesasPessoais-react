@@ -1,4 +1,27 @@
 {
+  "users": [
+    {
+      "id": "1",
+      "nome": "Mateus Zeferino",
+      "email": "mateus@example.com",
+      "password": "123456",
+      "role": "user"
+    },
+    {
+      "id": "2",
+      "nome": "Ana Souza",
+      "email": "ana@example.com",
+      "password": "senha123",
+      "role": "user"
+    },
+    {
+      "id": "3",
+      "nome": "Matheus Cataeno",
+      "email": "cataeno@example.com",
+      "password": "123457",
+      "role": "user"
+    }
+  ],
   "gastos": [
     {
       "id": "4b3d",
@@ -6,7 +29,8 @@
       "categoria": "Lazer",
       "valor": 49.9,
       "data": "2025-12-10",
-      "mes": "12"
+      "mes": "12",
+      "userId": 1
     },
     {
       "id": "871a",
@@ -14,7 +38,8 @@
       "categoria": "Festa de Ano novo",
       "valor": 250,
       "data": "2025-12-31",
-      "mes": "12"
+      "mes": "12",
+      "userId": 1
     },
     {
       "id": "ca09",
@@ -22,7 +47,8 @@
       "categoria": "Lazer ",
       "valor": 20000000,
       "data": "2025-12-31",
-      "mes": "12"
+      "mes": "12",
+      "userId": 2
     },
     {
       "id": "79c9",
@@ -30,7 +56,8 @@
       "categoria": "Vestimenta",
       "valor": 250,
       "data": "2025-11-25",
-      "mes": "11"
+      "mes": "11",
+      "userId": 2
     },
     {
       "id": "9f5b",
@@ -38,7 +65,8 @@
       "categoria": "Saúde",
       "valor": 320,
       "data": "2025-08-05",
-      "mes": "8"
+      "mes": "8",
+      "userId": 1
     },
     {
       "id": "ba18",
@@ -46,7 +74,8 @@
       "categoria": "Alimentação",
       "valor": 720.5,
       "data": "2025-09-12",
-      "mes": "9"
+      "mes": "9",
+      "userId": 2
     },
     {
       "id": "d4c0",
@@ -54,7 +83,8 @@
       "categoria": "Saúde",
       "valor": 189.9,
       "data": "2025-07-03",
-      "mes": "7"
+      "mes": "7",
+      "userId": 1
     },
     {
       "id": "f83e",
@@ -62,7 +92,8 @@
       "categoria": "Viagem",
       "valor": 1420,
       "data": "2025-06-11",
-      "mes": "6"
+      "mes": "6",
+      "userId": 2
     },
     {
       "id": "a1bd",
@@ -70,7 +101,8 @@
       "categoria": "Serviços",
       "valor": 179.9,
       "data": "2025-05-02",
-      "mes": "5"
+      "mes": "5",
+      "userId": 1
     },
     {
       "id": "1067",
@@ -78,7 +110,8 @@
       "categoria": "Transporte",
       "valor": 320,
       "data": "2025-04-17",
-      "mes": "4"
+      "mes": "4",
+      "userId": 2
     },
     {
       "id": "1f32",
@@ -86,7 +119,8 @@
       "categoria": "Alimentação",
       "valor": 210,
       "data": "2024-12-05",
-      "mes": "12"
+      "mes": "12",
+      "userId": 1
     },
     {
       "id": "2c6a",
@@ -94,7 +128,8 @@
       "categoria": "Transporte",
       "valor": 890,
       "data": "2024-10-29",
-      "mes": "10"
+      "mes": "10",
+      "userId": 1
     },
     {
       "id": "3d6f",
@@ -102,7 +137,8 @@
       "categoria": "Trabalho",
       "valor": 540,
       "data": "2024-09-10",
-      "mes": "9"
+      "mes": "9",
+      "userId": 2
     },
     {
       "id": "4e91",
@@ -110,7 +146,8 @@
       "categoria": "Educação",
       "valor": 680,
       "data": "2024-05-22",
-      "mes": "5"
+      "mes": "5",
+      "userId": 1
     },
     {
       "id": "5b02",
@@ -118,7 +155,8 @@
       "categoria": "Lazer",
       "valor": 120,
       "data": "2024-07-15",
-      "mes": "7"
+      "mes": "7",
+      "userId": 2
     },
     {
       "id": "60d4",
@@ -126,7 +164,8 @@
       "categoria": "Seguros",
       "valor": 1320,
       "data": "2023-11-28",
-      "mes": "11"
+      "mes": "11",
+      "userId": 1
     },
     {
       "id": "7b81",
@@ -134,7 +173,8 @@
       "categoria": "Trabalho",
       "valor": 920,
       "data": "2023-02-18",
-      "mes": "2"
+      "mes": "2",
+      "userId": 2
     },
     {
       "id": "8c23",
@@ -142,7 +182,8 @@
       "categoria": "Lazer",
       "valor": 380,
       "data": "2023-03-19",
-      "mes": "3"
+      "mes": "3",
+      "userId": 1
     },
     {
       "id": "9d45",
@@ -150,7 +191,8 @@
       "categoria": "Serviços",
       "valor": 145.9,
       "data": "2023-04-06",
-      "mes": "4"
+      "mes": "4",
+      "userId": 2
     },
     {
       "id": "af76",
@@ -158,7 +200,8 @@
       "categoria": "Lazer",
       "valor": 620,
       "data": "2022-12-18",
-      "mes": "12"
+      "mes": "12",
+      "userId": 1
     },
     {
       "id": "be88",
@@ -166,7 +209,8 @@
       "categoria": "Educação",
       "valor": 1340,
       "data": "2022-05-10",
-      "mes": "5"
+      "mes": "5",
+      "userId": 2
     },
     {
       "id": "cf51",
@@ -174,7 +218,8 @@
       "categoria": "Saúde",
       "valor": 95.5,
       "data": "2022-01-15",
-      "mes": "1"
+      "mes": "1",
+      "userId": 1
     },
     {
       "id": "d102",
@@ -182,7 +227,8 @@
       "categoria": "Saúde",
       "valor": 210,
       "data": "2021-06-05",
-      "mes": "6"
+      "mes": "6",
+      "userId": 2
     },
     {
       "id": "e213",
@@ -190,7 +236,8 @@
       "categoria": "Alimentação",
       "valor": 690.2,
       "data": "2021-07-20",
-      "mes": "7"
+      "mes": "7",
+      "userId": 1
     },
     {
       "id": "f624",
@@ -198,7 +245,26 @@
       "categoria": "Trabalho",
       "valor": 2500,
       "data": "2021-08-27",
-      "mes": "8"
+      "mes": "8",
+      "userId": 2
+    },
+    {
+      "id": "9ac5",
+      "descricao": "Aluguel",
+      "categoria": "Moradia",
+      "valor": 850,
+      "data": "2026-01-10",
+      "mes": "1",
+      "userId": 1
+    },
+    {
+      "id": "41df",
+      "descricao": "IPTV",
+      "categoria": "Streaming",
+      "valor": 30,
+      "data": "2025-11-10",
+      "mes": "11",
+      "userId": 3
     }
   ]
 }

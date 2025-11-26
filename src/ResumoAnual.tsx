@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./App.css";
+import { useAuth } from "./auth/useAuth";
 
 interface Gasto {
-  id: number;
+  id: string;
   descricao: string;
   categoria: string;
   valor: number;
   data: string;
   mes: string;
+  userId: number;
 }
 
 const API_URL = "http://localhost:3001/gastos";
@@ -29,6 +31,7 @@ const MESES = [
 ];
 
 const ResumoAnual: React.FC = () => {
+  const { user, logout, isAdmin } = useAuth();
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [anosDisponiveis, setAnosDisponiveis] = useState<number[]>([]);
   const [anoSelecionado, setAnoSelecionado] = useState<number | null>(null);
@@ -36,12 +39,19 @@ const ResumoAnual: React.FC = () => {
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user || isAdmin) {
+      setGastos([]);
+      setAnosDisponiveis([]);
+      setAnoSelecionado(null);
+      return;
+    }
+
     const carregarGastos = async () => {
       try {
         setCarregando(true);
         setErro(null);
 
-        const resposta = await fetch(API_URL);
+        const resposta = await fetch(`${API_URL}?userId=${user.id}`);
         if (!resposta.ok) {
           throw new Error("Erro ao buscar gastos na API");
         }
@@ -63,6 +73,8 @@ const ResumoAnual: React.FC = () => {
         setAnosDisponiveis(anosOrdenados);
         if (anosOrdenados.length > 0) {
           setAnoSelecionado(anosOrdenados[anosOrdenados.length - 1]);
+        } else {
+          setAnoSelecionado(null);
         }
       } catch (erroCapturado) {
         const mensagem =
@@ -76,7 +88,7 @@ const ResumoAnual: React.FC = () => {
     };
 
     carregarGastos();
-  }, []);
+  }, [user, isAdmin]);
 
   const totaisPorMes: number[] = useMemo(() => {
     if (anoSelecionado === null || gastos.length === 0) {
@@ -110,6 +122,44 @@ const ResumoAnual: React.FC = () => {
 
   const formatarValor = (valor: number): string =>
     `R$ ${valor.toFixed(2).replace(".", ",")}`;
+
+  if (!user) {
+    return null;
+  }
+
+  if (isAdmin) {
+    return (
+      <div className="app-layout">
+        <main className="content-area">
+          <div className="userbar">
+            <div className="userbar-info">
+              Olá, <strong>{user.nome}</strong>
+            </div>
+            <div className="userbar-actions">
+              <Link to="/admin" className="secondary-btn">
+                Painel admin
+              </Link>
+              <button className="ghost-btn" type="button" onClick={logout}>
+                Sair
+              </button>
+            </div>
+          </div>
+          <div className="page-card">
+            <header className="rich-header">
+              <h1>Painel administrativo</h1>
+              <p>
+                Utilize o painel administrativo para acompanhar os gastos de
+                todos os usuários.
+              </p>
+            </header>
+            <Link to="/admin" className="primary-btn">
+              Abrir painel administrativo
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="app-layout">
@@ -147,6 +197,15 @@ const ResumoAnual: React.FC = () => {
       </aside>
 
       <main className="content-area">
+        <div className="userbar">
+          <div className="userbar-info">
+            Olá, <strong>{user.nome}</strong>
+          </div>
+          <button className="secondary-btn" type="button" onClick={logout}>
+            Sair
+          </button>
+        </div>
+
         <div className="page-card">
           <header className="rich-header">
             <h1>

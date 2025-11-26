@@ -7,15 +7,17 @@ import {
 } from "react";
 import { Link } from "react-router-dom";
 import CarregandoModal from "./componentes/carregandoModal";
+import { useAuth } from "./auth/useAuth";
 import "./App.css";
 
 interface Gasto {
-  id: number;
+  id: string;
   descricao: string;
   categoria: string;
   valor: number;
   data: string;
   mes: string;
+  userId: number;
 }
 
 type NovoGasto = {
@@ -51,6 +53,7 @@ const getAnoDeGasto = (gasto: Gasto): number => {
 };
 
 function App() {
+  const { user, logout, isAdmin } = useAuth();
   const [mesSelecionado, setMesSelecionado] = useState<string>(
     MES_ATUAL_PADRAO
   );
@@ -89,14 +92,19 @@ function App() {
   }, [anosDisponiveis]);
 
   useEffect(() => {
-    carregarTodosGastos();
-  }, []);
+    if (!user || isAdmin) {
+      setTodosGastos([]);
+      return;
+    }
+    carregarTodosGastos(user.id);
+  }, [user, isAdmin]);
 
-  async function carregarTodosGastos() {
+  async function carregarTodosGastos(userId: number) {
+    if (!userId) return;
     try {
       setCarregando(true);
       setErro(null);
-      const resposta = await fetch(API_URL);
+      const resposta = await fetch(`${API_URL}?userId=${userId}`);
 
       if (!resposta.ok) {
         throw new Error("Erro ao buscar gastos na API");
@@ -116,7 +124,7 @@ function App() {
   }
 
   const gastosFiltrados = useMemo(() => {
-    if (!anoSelecionado) return [];
+    if (!anoSelecionado || !user) return [];
 
     return todosGastos.filter((gasto) => {
       const anoGasto = getAnoDeGasto(gasto);
@@ -140,6 +148,11 @@ function App() {
   async function handleSubmitNovoGasto(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
 
+    if (!user) {
+      setErro("Faça login novamente para adicionar gastos.");
+      return;
+    }
+
     try {
       setErro(null);
 
@@ -154,6 +167,7 @@ function App() {
         valor: novoGasto.valor,
         data: novoGasto.data,
         mes: mesDaData,
+        userId: user.id,
       };
 
       const resposta = await fetch(API_URL, {
@@ -201,6 +215,10 @@ function App() {
 
   async function handleSalvarEdicao() {
     if (!gastoEditando) return;
+    if (!user) {
+      setErro("Sessão expirada. Faça login novamente.");
+      return;
+    }
 
     try {
       setErro(null);
@@ -213,6 +231,7 @@ function App() {
       const payloadAtualizado = {
         ...gastoEditando,
         mes: mesDaData,
+        userId: user.id,
       };
 
       const resposta = await fetch(`${API_URL}/${gastoEditando.id}`, {
@@ -244,7 +263,11 @@ function App() {
     }
   }
 
-  async function handleExcluirGasto(id: number) {
+  async function handleExcluirGasto(id: string) {
+    if (!user) {
+      setErro("Sessão expirada. Faça login novamente.");
+      return;
+    }
     try {
       setErro(null);
 
@@ -275,6 +298,44 @@ function App() {
   function obterRotuloMes(valorMes: string): string {
     const encontrado = MESES.find((mes) => mes.valor === valorMes);
     return encontrado ? encontrado.rotulo : `Mês ${valorMes}`;
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  if (isAdmin) {
+    return (
+      <div className="app-layout">
+        <main className="content-area">
+          <div className="userbar">
+            <div className="userbar-info">
+              Olá, <strong>{user.nome}</strong>
+            </div>
+            <div className="userbar-actions">
+              <Link to="/admin" className="secondary-btn">
+                Painel admin
+              </Link>
+              <button className="ghost-btn" type="button" onClick={logout}>
+                Sair
+              </button>
+            </div>
+          </div>
+          <div className="page-card">
+            <header className="rich-header">
+              <h1>Painel administrativo</h1>
+              <p>
+                Use o painel de administração para gerenciar usuários e gastos
+                de todo o sistema.
+              </p>
+            </header>
+            <Link to="/admin" className="primary-btn">
+              Abrir painel administrativo
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -341,6 +402,15 @@ function App() {
       </aside>
 
       <main className="content-area">
+        <div className="userbar">
+          <div className="userbar-info">
+            Olá, <strong>{user.nome}</strong>
+          </div>
+          <button className="secondary-btn" type="button" onClick={logout}>
+            Sair
+          </button>
+        </div>
+
         <div className="page-card">
           <header className="rich-header">
             <h1>Gastos do mês de {obterRotuloMes(mesSelecionado)}</h1>

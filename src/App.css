@@ -533,6 +533,20 @@
   align-items: center;
 }
 
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.pagination__status {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin: 0 8px;
+}
+
 .mes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

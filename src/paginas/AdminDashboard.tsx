@@ -11,6 +11,7 @@ import "../App.css";
 
 const USERS_API_URL = "http://localhost:3001/users";
 const GASTOS_API_URL = "http://localhost:3001/gastos";
+const ITENS_POR_PAGINA = 5;
 
 interface Usuario {
   id: number;
@@ -54,6 +55,7 @@ const AdminDashboard = () => {
   });
   const [gastoEditando, setGastoEditando] = useState<AdminGasto | null>(null);
   const [filtroUsuario, setFiltroUsuario] = useState<string>("todos");
+  const [paginaGastos, setPaginaGastos] = useState<number>(1);
 
   useEffect(() => {
     carregarDados();
@@ -72,6 +74,27 @@ const AdminDashboard = () => {
     const id = Number(filtroUsuario);
     return gastos.filter((gasto) => gasto.userId === id);
   }, [gastos, filtroUsuario]);
+
+  useEffect(() => {
+    setPaginaGastos(1);
+  }, [filtroUsuario]);
+
+  const totalPaginasGastos = useMemo(
+    () =>
+      Math.max(1, Math.ceil(gastosFiltrados.length / ITENS_POR_PAGINA)),
+    [gastosFiltrados.length]
+  );
+
+  useEffect(() => {
+    setPaginaGastos((paginaAtual) =>
+      Math.min(paginaAtual, totalPaginasGastos)
+    );
+  }, [totalPaginasGastos]);
+
+  const gastosPaginados = useMemo(() => {
+    const inicio = (paginaGastos - 1) * ITENS_POR_PAGINA;
+    return gastosFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
+  }, [gastosFiltrados, paginaGastos]);
 
   async function carregarDados() {
     setCarregando(true);
@@ -670,7 +693,7 @@ const AdminDashboard = () => {
             </form>
 
             <ul className="admin-list">
-              {gastosFiltrados.map((gasto) => {
+              {gastosPaginados.map((gasto) => {
                 const emEdicao = gastoEditando?.id === gasto.id;
                 const usuarioDoGasto = usuarioMap.get(gasto.userId);
 
@@ -776,6 +799,35 @@ const AdminDashboard = () => {
                 );
               })}
             </ul>
+            {gastosFiltrados.length > ITENS_POR_PAGINA && (
+              <div className="pagination">
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  onClick={() =>
+                    setPaginaGastos((pagina) => Math.max(1, pagina - 1))
+                  }
+                  disabled={paginaGastos === 1}
+                >
+                  Anterior
+                </button>
+                <span className="pagination__status">
+                  Pagina {paginaGastos} de {totalPaginasGastos}
+                </span>
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  onClick={() =>
+                    setPaginaGastos((pagina) =>
+                      Math.min(totalPaginasGastos, pagina + 1)
+                    )
+                  }
+                  disabled={paginaGastos === totalPaginasGastos}
+                >
+                  Proxima
+                </button>
+              </div>
+            )}
           </section>
         </div>
       </main>

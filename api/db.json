@@ -1,28 +1,27 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "nome": "Mateus Zeferino",
       "email": "mateus@example.com",
-      "password": "123456",
-      "role": "user"
+      "role": "admin"
     },
     {
-      "id": 2,
+      "id": "2",
       "nome": "Ana Souza",
       "email": "ana@example.com",
       "password": "senha123",
       "role": "user"
     },
     {
-      "id": 3,
+      "id": "3",
       "nome": "Matheus Cataeno",
       "email": "cataeno@example.com",
       "password": "123457",
       "role": "user"
     },
     {
-      "id": 99,
+      "id": "99",
       "nome": "Administrador",
       "email": "admin",
       "password": "1234",
@@ -3166,7 +3165,7 @@
       "id": "1-2025-11-0",
       "descricao": "Supermercado",
       "categoria": "Alimentação",
-      "valor": 186,
+      "valor": 185.26,
       "data": "2025-11-05",
       "mes": "11",
       "userId": 1

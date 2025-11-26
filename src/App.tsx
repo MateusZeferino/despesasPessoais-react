@@ -29,6 +29,8 @@ type NovoGasto = {
 
 const API_URL = "http://localhost:3001/gastos";
 
+const ITENS_POR_PAGINA = 5;
+
 const MESES = [
   { valor: "1", rotulo: "Janeiro" },
   { valor: "2", rotulo: "Fevereiro" },
@@ -70,6 +72,7 @@ function App() {
   const [anoSelecionado, setAnoSelecionado] = useState<number>(
     dataAtual.getFullYear()
   );
+  const [paginaAtual, setPaginaAtual] = useState<number>(1);
 
   const anosDisponiveis = useMemo(() => {
     const anosSet = new Set<number>();
@@ -131,6 +134,31 @@ function App() {
       return gasto.mes === mesSelecionado && anoGasto === anoSelecionado;
     });
   }, [mesSelecionado, todosGastos, anoSelecionado]);
+
+  useEffect(() => {
+    setPaginaAtual(1);
+  }, [mesSelecionado, anoSelecionado]);
+
+  useEffect(() => {
+    setPaginaAtual((paginaAnterior) => {
+      const totalPaginasCalculado = Math.max(
+        1,
+        Math.ceil(gastosFiltrados.length / ITENS_POR_PAGINA)
+      );
+      return Math.min(paginaAnterior, totalPaginasCalculado);
+    });
+  }, [gastosFiltrados.length]);
+
+  const totalPaginas = useMemo(
+    () =>
+      Math.max(1, Math.ceil(gastosFiltrados.length / ITENS_POR_PAGINA)),
+    [gastosFiltrados.length]
+  );
+
+  const gastosPaginados = useMemo(() => {
+    const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+    return gastosFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
+  }, [gastosFiltrados, paginaAtual]);
 
   function handleSelecionarMes(mes: string) {
     setMesSelecionado(mes);
@@ -441,7 +469,7 @@ function App() {
           <section className="gastos-section">
             <h2>Lista de gastos</h2>
             <ul className="gastos-list">
-              {gastosFiltrados.map((gasto) => {
+              {gastosPaginados.map((gasto) => {
                 const estaEditando = gastoEditando?.id === gasto.id;
                 return (
                   <li key={gasto.id} className="gasto-card">
@@ -535,6 +563,35 @@ function App() {
                 );
               })}
             </ul>
+            {gastosFiltrados.length > ITENS_POR_PAGINA && (
+              <div className="pagination">
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  onClick={() =>
+                    setPaginaAtual((pagina) => Math.max(1, pagina - 1))
+                  }
+                  disabled={paginaAtual === 1}
+                >
+                  Anterior
+                </button>
+                <span className="pagination__status">
+                  Pagina {paginaAtual} de {totalPaginas}
+                </span>
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  onClick={() =>
+                    setPaginaAtual((pagina) =>
+                      Math.min(totalPaginas, pagina + 1)
+                    )
+                  }
+                  disabled={paginaAtual === totalPaginas}
+                >
+                  Proxima
+                </button>
+              </div>
+            )}
           </section>
         </div>
 

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 
@@ -75,10 +75,6 @@ const Login = () => {
 
         <p className="auth-link">
           Ainda não tem conta? <Link to="/register">Cadastre-se</Link>
-        </p>
-        <p className="auth-link">
-          Acesso administrador: usuário <strong>admin</strong> / senha{" "}
-          <strong>1234</strong>.
         </p>
       </div>
     </div>

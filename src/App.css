@@ -47,6 +47,52 @@
   margin: 0;
 }
 
+/* Filtro de ano na sidebar */
+
+.year-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.year-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.year-option {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card);
+  color: var(--color-muted-dark);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.year-option:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+}
+
+.year-option--active {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  box-shadow: 0 0 0 1px rgba(15, 106, 216, 0.15);
+}
+
+.year-option:active {
+  transform: translateY(1px);
+}
+
 .filters-list {
   list-style: none;
   margin: 0;

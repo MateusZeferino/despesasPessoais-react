@@ -1,4 +1,10 @@
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import { Link } from "react-router-dom";
 import CarregandoModal from "./componentes/carregandoModal";
 import "./App.css";
@@ -39,11 +45,16 @@ const MESES = [
 const dataAtual = new Date();
 const MES_ATUAL_PADRAO = String(dataAtual.getMonth() + 1);
 
+const getAnoDeGasto = (gasto: Gasto): number => {
+  const ano = new Date(gasto.data).getFullYear();
+  return Number.isNaN(ano) ? dataAtual.getFullYear() : ano;
+};
+
 function App() {
   const [mesSelecionado, setMesSelecionado] = useState<string>(
     MES_ATUAL_PADRAO
   );
-  const [gastos, setGastos] = useState<Gasto[]>([]);
+  const [todosGastos, setTodosGastos] = useState<Gasto[]>([]);
   const [carregando, setCarregando] = useState<boolean>(false);
   const [erro, setErro] = useState<string | null>(null);
   const [novoGasto, setNovoGasto] = useState<NovoGasto>({
@@ -53,23 +64,46 @@ function App() {
     data: "",
   });
   const [gastoEditando, setGastoEditando] = useState<Gasto | null>(null);
+  const [anoSelecionado, setAnoSelecionado] = useState<number>(
+    dataAtual.getFullYear()
+  );
+
+  const anosDisponiveis = useMemo(() => {
+    const anosSet = new Set<number>();
+
+    todosGastos.forEach((gasto) => {
+      anosSet.add(getAnoDeGasto(gasto));
+    });
+
+    return Array.from(anosSet).sort((a, b) => a - b);
+  }, [todosGastos]);
 
   useEffect(() => {
-    buscarGastosPorMes(mesSelecionado);
-  }, [mesSelecionado]);
+    if (anosDisponiveis.length === 0) return;
 
-  async function buscarGastosPorMes(mes: string) {
+    setAnoSelecionado((anoAtual) =>
+      anoAtual && anosDisponiveis.includes(anoAtual)
+        ? anoAtual
+        : anosDisponiveis[anosDisponiveis.length - 1]
+    );
+  }, [anosDisponiveis]);
+
+  useEffect(() => {
+    carregarTodosGastos();
+  }, []);
+
+  async function carregarTodosGastos() {
     try {
       setCarregando(true);
       setErro(null);
-      const resposta = await fetch(`${API_URL}?mes=${mes}`);
+      const resposta = await fetch(API_URL);
 
       if (!resposta.ok) {
         throw new Error("Erro ao buscar gastos na API");
       }
 
       const dados: Gasto[] = await resposta.json();
-      setGastos(dados);
+      setTodosGastos(dados);
     } catch (erroCapturado) {
       const mensagem =
         erroCapturado instanceof Error
@@ -80,6 +114,15 @@ function App() {
       setCarregando(false);
     }
   }
+
+  const gastosFiltrados = useMemo(() => {
+    if (!anoSelecionado) return [];
+
+    return todosGastos.filter((gasto) => {
+      const anoGasto = getAnoDeGasto(gasto);
+      return gasto.mes === mesSelecionado && anoGasto === anoSelecionado;
+    });
+  }, [mesSelecionado, todosGastos, anoSelecionado]);
 
   function handleSelecionarMes(mes: string) {
     setMesSelecionado(mes);
@@ -126,10 +169,7 @@ function App() {
       }
 
       const gastoCriado: Gasto = await resposta.json();
-
-      if (gastoCriado.mes === mesSelecionado) {
-        setGastos((estadoAnterior) => [...estadoAnterior, gastoCriado]);
-      }
+      setTodosGastos((estadoAnterior) => [...estadoAnterior, gastoCriado]);
 
       setNovoGasto({
         descricao: "",
@@ -188,18 +228,11 @@ function App() {
       }
 
       const gastoAtualizado: Gasto = await resposta.json();
-
-      if (gastoAtualizado.mes === mesSelecionado) {
-        setGastos((estadoAnterior) =>
-          estadoAnterior.map((gasto) =>
-            gasto.id === gastoAtualizado.id ? gastoAtualizado : gasto
-          )
-        );
-      } else {
-        setGastos((estadoAnterior) =>
-          estadoAnterior.filter((gasto) => gasto.id !== gastoAtualizado.id)
-        );
-      }
+      setTodosGastos((estadoAnterior) =>
+        estadoAnterior.map((gasto) =>
+          gasto.id === gastoAtualizado.id ? gastoAtualizado : gasto
+        )
+      );
 
       setGastoEditando(null);
     } catch (erroCapturado) {
@@ -223,7 +256,7 @@ function App() {
         throw new Error("Erro ao excluir gasto");
       }
 
-      setGastos((estadoAnterior) =>
+      setTodosGastos((estadoAnterior) =>
         estadoAnterior.filter((gasto) => gasto.id !== id)
       );
 
@@ -248,7 +281,36 @@ function App() {
     <div className="app-layout">
       <CarregandoModal open={carregando} message="Carregando dados..." />
 
-      <aside className="sidebar" aria-label="Seleção de meses">
+      <aside className="sidebar" aria-label="Seleção de meses e anos">
+        <div className="year-filter" aria-label="Escolha do ano">
+          <p className="sidebar-description">Ano</p>
+          {anosDisponiveis.length === 0 ? (
+            <p className="empty-state">Nenhum gasto cadastrado ainda.</p>
+          ) : (
+            <div className="year-buttons">
+              {anosDisponiveis.map((ano) => {
+                const anoAtivo = anoSelecionado === ano;
+                return (
+                  <button
+                    key={ano}
+                    type="button"
+                    className={`year-option ${
+                      anoAtivo ? "year-option--active" : ""
+                    }`}
+                    onClick={() => setAnoSelecionado(ano)}
+                    aria-pressed={anoAtivo}
+                  >
+                    {ano}
+                    {anoAtivo && (
+                      <span className="sr-only"> (Selecionado)</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <h2 className="sidebar-title">Meses</h2>
         <p className="sidebar-description">
           Escolha o mês para visualizar os gastos existentes.
@@ -294,7 +356,7 @@ function App() {
             </div>
           )}
 
-          {!carregando && gastos.length === 0 && (
+          {!carregando && gastosFiltrados.length === 0 && (
             <p className="empty-state">
               Nenhum gasto cadastrado para este mês ainda.
             </p>
@@ -309,7 +371,7 @@ function App() {
           <section className="gastos-section">
             <h2>Lista de gastos</h2>
             <ul className="gastos-list">
-              {gastos.map((gasto) => {
+              {gastosFiltrados.map((gasto) => {
                 const estaEditando = gastoEditando?.id === gasto.id;
                 return (
                   <li key={gasto.id} className="gasto-card">

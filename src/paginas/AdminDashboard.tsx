@@ -1,6 +1,6 @@
 import {
-  ChangeEvent,
-  FormEvent,
+  type ChangeEvent,
+  type FormEvent,
   useEffect,
   useMemo,
   useState,

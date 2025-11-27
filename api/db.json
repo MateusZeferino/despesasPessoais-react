@@ -29,6 +29,14 @@
       "email": "admin",
       "password": "1234",
       "role": "admin"
+    },
+    {
+      "id": "4dd0",
+      "nome": "Marx",
+      "email": "marx@example.com",
+      "password": "123789",
+      "role": "user",
+      "renda-mensal": 100000
     }
   ],
   "gastos": [
@@ -2916,7 +2924,7 @@
       "id": "1-2025-07-2",
       "descricao": "Combustível/Ônibus",
       "categoria": "Transporte",
-      "valor": 206,
+      "valor": 200,
       "data": "2025-07-20",
       "mes": "7",
       "userId": 1
@@ -3114,7 +3122,7 @@
       "id": "1-2025-11-0",
       "descricao": "Supermercado",
       "categoria": "Alimentação",
-      "valor": 185.26,
+      "valor": 198.26,
       "data": "2025-11-05",
       "mes": "11",
       "userId": 1
@@ -3123,7 +3131,7 @@
       "id": "1-2025-11-1",
       "descricao": "Aluguel/Condomínio",
       "categoria": "Moradia",
-      "valor": 204,
+      "valor": 300,
       "data": "2025-11-12",
       "mes": "11",
       "userId": 1
@@ -3132,7 +3140,7 @@
       "id": "1-2025-11-2",
       "descricao": "Combustível/Ônibus",
       "categoria": "Transporte",
-      "valor": 222,
+      "valor": 228,
       "data": "2025-11-20",
       "mes": "11",
       "userId": 1
@@ -9636,15 +9644,6 @@
       "userId": 3
     },
     {
-      "id": "3-2025-11-5",
-      "descricao": "Plano de saúde/Farmácia",
-      "categoria": "Saúde",
-      "valor": 296,
-      "data": "2025-11-24",
-      "mes": "11",
-      "userId": 3
-    },
-    {
       "id": "3-2025-12-0",
       "descricao": "Supermercado",
       "categoria": "Alimentação",
@@ -9706,6 +9705,33 @@
       "data": "2025-12-25",
       "mes": "12",
       "userId": 1
+    },
+    {
+      "id": "7ee9",
+      "descricao": "GIASSI",
+      "categoria": "Alimentação",
+      "valor": 500,
+      "data": "2025-12-26",
+      "mes": "12",
+      "userId": 1
+    },
+    {
+      "id": "bc55",
+      "descricao": "GIASSI",
+      "categoria": "Alimentação",
+      "valor": 250,
+      "data": "2025-11-26",
+      "mes": "11",
+      "userId": 1
+    },
+    {
+      "id": "203b",
+      "descricao": "entrada de carro",
+      "categoria": "Transporte",
+      "valor": 3500,
+      "data": "2025-11-26",
+      "mes": "11",
+      "userId": 3
     }
   ]
 }

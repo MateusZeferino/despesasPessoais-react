@@ -8,44 +8,16 @@ import {
 import { Link } from "react-router-dom";
 import CarregandoModal from "./componentes/carregandoModal";
 import { useAuth } from "./auth/useAuth";
-import { formatarMoeda, obterClasseStatusValor } from "./utils/finance";
+import { obterClasseStatusValor } from "./utils/finance";
+import SidebarGastos from "./componentes/gastos/SidebarGastos";
+import GastosSection from "./componentes/gastos/GastosSection";
+import NovoGastoSection from "./componentes/gastos/NovoGastoSection";
+import type { Gasto, NovoGasto } from "./types/gastos";
 import "./App.css";
-
-interface Gasto {
-  id: string;
-  descricao: string;
-  categoria: string;
-  valor: number;
-  data: string;
-  mes: string;
-  userId: number;
-}
-
-type NovoGasto = {
-  descricao: string;
-  categoria: string;
-  valor: number;
-  data: string;
-};
 
 const API_URL = "http://localhost:3001/gastos";
 
 const ITENS_POR_PAGINA = 5;
-
-const MESES = [
-  { valor: "1", rotulo: "Janeiro" },
-  { valor: "2", rotulo: "Fevereiro" },
-  { valor: "3", rotulo: "Março" },
-  { valor: "4", rotulo: "Abril" },
-  { valor: "5", rotulo: "Maio" },
-  { valor: "6", rotulo: "Junho" },
-  { valor: "7", rotulo: "Julho" },
-  { valor: "8", rotulo: "Agosto" },
-  { valor: "9", rotulo: "Setembro" },
-  { valor: "10", rotulo: "Outubro" },
-  { valor: "11", rotulo: "Novembro" },
-  { valor: "12", rotulo: "Dezembro" },
-];
 
 const dataAtual = new Date();
 const MES_ATUAL_PADRAO = String(dataAtual.getMonth() + 1);
@@ -335,11 +307,6 @@ function App() {
     }
   }
 
-  function obterRotuloMes(valorMes: string): string {
-    const encontrado = MESES.find((mes) => mes.valor === valorMes);
-    return encontrado ? encontrado.rotulo : `Mês ${valorMes}`;
-  }
-
   if (!user) {
     return null;
   }
@@ -382,64 +349,13 @@ function App() {
     <div className="app-layout">
       <CarregandoModal open={carregando} message="Carregando dados..." />
 
-      <aside className="sidebar" aria-label="Seleção de meses e anos">
-        <div className="year-filter" aria-label="Escolha do ano">
-          <p className="sidebar-description">Ano</p>
-          {anosDisponiveis.length === 0 ? (
-            <p className="empty-state">Nenhum gasto cadastrado ainda.</p>
-          ) : (
-            <div className="year-buttons">
-              {anosDisponiveis.map((ano) => {
-                const anoAtivo = anoSelecionado === ano;
-                return (
-                  <button
-                    key={ano}
-                    type="button"
-                    className={`year-option ${
-                      anoAtivo ? "year-option--active" : ""
-                    }`}
-                    onClick={() => setAnoSelecionado(ano)}
-                    aria-pressed={anoAtivo}
-                  >
-                    {ano}
-                    {anoAtivo && (
-                      <span className="sr-only"> (Selecionado)</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <h2 className="sidebar-title">Meses</h2>
-        <p className="sidebar-description">
-          Escolha o mês para visualizar os gastos existentes.
-        </p>
-        <ul className="filters-list">
-          {MESES.map((mes) => {
-            const ativo = mesSelecionado === mes.valor;
-            return (
-              <li key={mes.valor}>
-                <button
-                  type="button"
-                  className={`filter-button ${
-                    ativo ? "filter-button--active" : ""
-                  }`}
-                  onClick={() => handleSelecionarMes(mes.valor)}
-                  aria-pressed={ativo}
-                >
-                  <span className="filter-indicator" aria-hidden="true" />
-                  <span>
-                    {mes.rotulo}
-                    {ativo && <span className="sr-only"> (Selecionado)</span>}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </aside>
+      <SidebarGastos
+        anosDisponiveis={anosDisponiveis}
+        anoSelecionado={anoSelecionado}
+        onSelecionarAno={setAnoSelecionado}
+        mesSelecionado={mesSelecionado}
+        onSelecionarMes={handleSelecionarMes}
+      />
 
       <main className="content-area">
         <div className="userbar">
@@ -451,225 +367,38 @@ function App() {
           </button>
         </div>
 
-        <div className="page-card">
-          <header className="rich-header">
-            <h1>Gastos do mês de {obterRotuloMes(mesSelecionado)}</h1>
-            <p>
-              Aqui tu enxerga, adiciona, edita e exclui gastos do mês
-              selecionado.
-            </p>
-          </header>
-
-          <div className="monthly-total">
-            <div className="monthly-total__info">
-              <span>Total do mes</span>
-              {rendaMensal > 0 && (
-                <small>Renda mensal: {formatarMoeda(rendaMensal)}</small>
-              )}
-            </div>
-            <strong
-              className={`monthly-total__value valor-status ${classeValorTotalMes}`}
-            >
-              {formatarMoeda(totalGastosMes)}
-            </strong>
-          </div>
-
-          {erro && (
-            <div className="alert" role="alert">
-              {erro}
-            </div>
-          )}
-
-          {!carregando && gastosFiltrados.length === 0 && (
-            <p className="empty-state">
-              Nenhum gasto cadastrado para este mês ainda.
-            </p>
-          )}
-
-          {carregando && (
-            <p className="empty-state" aria-live="polite">
-              Carregando gastos...
-            </p>
-          )}
-
-          <section className="gastos-section">
-            <h2>Lista de gastos</h2>
-            <ul className="gastos-list">
-              {gastosPaginados.map((gasto) => {
-                const estaEditando = gastoEditando?.id === gasto.id;
-                return (
-                  <li key={gasto.id} className="gasto-card">
-                    {estaEditando ? (
-                      <div className="input-grid">
-                        <input
-                          className="input-field"
-                          type="text"
-                          name="descricao"
-                          value={gastoEditando?.descricao ?? ""}
-                          onChange={handleChangeGastoEditando}
-                          placeholder="Descrição"
-                        />
-                        <input
-                          className="input-field"
-                          type="text"
-                          name="categoria"
-                          value={gastoEditando?.categoria ?? ""}
-                          onChange={handleChangeGastoEditando}
-                          placeholder="Categoria"
-                        />
-                        <input
-                          className="input-field input-field--compact"
-                          type="number"
-                          name="valor"
-                          value={gastoEditando?.valor ?? 0}
-                          onChange={handleChangeGastoEditando}
-                          placeholder="Valor"
-                          step="0.01"
-                        />
-                        <input
-                          className="input-field input-field--date"
-                          type="date"
-                          name="data"
-                          value={gastoEditando?.data ?? ""}
-                          onChange={handleChangeGastoEditando}
-                        />
-                      </div>
-                    ) : (
-                      <div className="gasto-card__body">
-                        <div className="gasto-card__column">
-                          <p className="gasto-card__title">{gasto.descricao}</p>
-                          <p className="gasto-card__meta">{gasto.categoria}</p>
-                        </div>
-                        <div className="gasto-card__column gasto-card__column--right">
-                          <span className="gasto-card__value">
-                            R$ {gasto.valor.toFixed(2)}
-                          </span>
-                          <span className="gasto-card__meta">{gasto.data}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="gasto-card__actions">
-                      {estaEditando ? (
-                        <>
-                          <button
-                            className="primary-btn"
-                            type="button"
-                            onClick={handleSalvarEdicao}
-                          >
-                            Salvar
-                          </button>
-                          <button
-                            className="secondary-btn"
-                            type="button"
-                            onClick={() => setGastoEditando(null)}
-                          >
-                            Cancelar
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          className="secondary-btn"
-                          type="button"
-                          onClick={() => handleIniciarEdicao(gasto)}
-                        >
-                          Editar
-                        </button>
-                      )}
-
-                      <button
-                        className="ghost-btn"
-                        type="button"
-                        onClick={() => handleExcluirGasto(gasto.id)}
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-            {gastosFiltrados.length > ITENS_POR_PAGINA && (
-              <div className="pagination">
-                <button
-                  type="button"
-                  className="secondary-btn"
-                  onClick={() =>
-                    setPaginaAtual((pagina) => Math.max(1, pagina - 1))
-                  }
-                  disabled={paginaAtual === 1}
-                >
-                  Anterior
-                </button>
-                <span className="pagination__status">
-                  Pagina {paginaAtual} de {totalPaginas}
-                </span>
-                <button
-                  type="button"
-                  className="secondary-btn"
-                  onClick={() =>
-                    setPaginaAtual((pagina) =>
-                      Math.min(totalPaginas, pagina + 1)
-                    )
-                  }
-                  disabled={paginaAtual === totalPaginas}
-                >
-                  Proxima
-                </button>
-              </div>
-            )}
-          </section>
-        </div>
+        <GastosSection
+          mesSelecionado={mesSelecionado}
+          rendaMensal={rendaMensal}
+          totalGastosMes={totalGastosMes}
+          classeValorTotalMes={classeValorTotalMes}
+          erro={erro}
+          carregando={carregando}
+          gastosPaginados={gastosPaginados}
+          gastosFiltradosCount={gastosFiltrados.length}
+          itensPorPagina={ITENS_POR_PAGINA}
+          paginaAtual={paginaAtual}
+          totalPaginas={totalPaginas}
+          gastoEditando={gastoEditando}
+          onIniciarEdicao={handleIniciarEdicao}
+          onChangeGastoEditando={handleChangeGastoEditando}
+          onSalvarEdicao={handleSalvarEdicao}
+          onCancelarEdicao={() => setGastoEditando(null)}
+          onExcluirGasto={handleExcluirGasto}
+          onPaginaAnterior={() =>
+            setPaginaAtual((pagina) => Math.max(1, pagina - 1))
+          }
+          onPaginaProxima={() =>
+            setPaginaAtual((pagina) => Math.min(totalPaginas, pagina + 1))
+          }
+        />
 
         <div className="page-card">
-          <section>
-            <h2>Adicionar novo gasto</h2>
-            <form
-              onSubmit={handleSubmitNovoGasto}
-              className="input-grid"
-              aria-label="Formulário para adicionar novo gasto"
-            >
-              <input
-                className="input-field"
-                type="text"
-                name="descricao"
-                value={novoGasto.descricao}
-                onChange={handleChangeNovoGasto}
-                placeholder="Descrição"
-                required
-              />
-              <input
-                className="input-field"
-                type="text"
-                name="categoria"
-                value={novoGasto.categoria}
-                onChange={handleChangeNovoGasto}
-                placeholder="Categoria"
-                required
-              />
-              <input
-                className="input-field"
-                type="number"
-                name="valor"
-                value={novoGasto.valor === 0 ? "" : novoGasto.valor}
-                onChange={handleChangeNovoGasto}
-                placeholder="Valor"
-                step="0.01"
-                required
-              />
-              <input
-                className="input-field"
-                type="date"
-                name="data"
-                value={novoGasto.data}
-                onChange={handleChangeNovoGasto}
-                required
-              />
-              <button className="primary-btn" type="submit">
-                Adicionar
-              </button>
-            </form>
-          </section>
+          <NovoGastoSection
+            novoGasto={novoGasto}
+            onChangeNovoGasto={handleChangeNovoGasto}
+            onSubmitNovoGasto={handleSubmitNovoGasto}
+          />
 
           <div className="cta-row">
             <Link to="/resumo-anual" className="cta-link">
